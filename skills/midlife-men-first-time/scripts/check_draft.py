@@ -109,15 +109,17 @@ class Report:
 
 # ---------------------------------------------------------------- 主逻辑
 
-def check(path: Path, obj=None, expect_title=None):
+def check(path: Path, obj=None, expect_title=None, short=False):
     raw, title, paras = load_paragraphs(path)
     body = re.sub(r"<!--.*?-->", "", "\n".join(paras), flags=re.S).strip()
     r = Report()
 
     # --- 0 篇幅
     n = cjk_len(body)
-    r.add("PASS" if 1000 <= n <= 2200 else "WARN",
-          "篇幅", f"{n} 个汉字" + ("" if 1000 <= n <= 2200 else "（理想 1200–1800）"))
+    lo, hi = (400, 900) if short else (1000, 2200)
+    r.add("PASS" if lo <= n <= hi else "WARN",
+          "篇幅", f"{n} 个汉字" + ("" if lo <= n <= hi
+                                   else (f"（速写理想 {lo}–{hi}）" if short else "（理想 1200–1800）")))
 
     # --- 0.5 未填占位符（防编造的机械护栏）
     holes = re.findall(r"【[^】]{0,40}】", body)
@@ -180,7 +182,8 @@ def check(path: Path, obj=None, expect_title=None):
         idx = [m.start() for m in re.finditer(re.escape(obj), body)]
         L = max(len(body), 1)
         if len(idx) < 2:
-            r.add("FAIL", "锚点物件闭环",
+            r.add("PASS" if short else "FAIL", "锚点物件闭环",
+                  "速写不强制锚点物件" if short else
                   f"「{obj}」只出现 {len(idx)} 次，必须在①段和⑦段各出现一次")
         else:
             first, last = idx[0] / L, idx[-1] / L
@@ -191,10 +194,14 @@ def check(path: Path, obj=None, expect_title=None):
                 extra = [f"首现：{sents[0][:44]}",
                          f"末现：{sents[-1][:44]}",
                          "A→A′ 测试：只读这两句，看得出她变了吗？看不出 → 不是闭环，是重复"]
-            r.add("PASS" if ok else "WARN", "锚点物件闭环",
-                  f"「{obj}」出现 {len(idx)} 次（首 {first:.0%} / 末 {last:.0%}）"
-                  + ("" if ok else " —— 首尾位置不够，检查是否只在中间出现"),
-                  extra)
+            if short and not ok:
+                r.add("PASS", "锚点物件闭环",
+                      f"「{obj}」出现 {len(idx)} 次（速写不强制首尾闭环）", extra)
+            else:
+                r.add("PASS" if ok else "WARN", "锚点物件闭环",
+                      f"「{obj}」出现 {len(idx)} 次（首 {first:.0%} / 末 {last:.0%}）"
+                      + ("" if ok else " —— 首尾位置不够，检查是否只在中间出现"),
+                      extra)
     else:
         r.add("WARN", "锚点物件闭环", "未指定 --object，跳过")
 
@@ -227,7 +234,9 @@ def check(path: Path, obj=None, expect_title=None):
     if re.search(r"你怎么看|如何看待|你怎么想|有什么感想", last):
         problems.append("问观点了，应改成问经历（「你有没有……」）")
     if problems:
-        r.add("FAIL", "结尾提问", "；".join(problems), [f"当前结尾：{last[:40]}"])
+        r.add("PASS" if short else "FAIL", "结尾提问",
+              "速写不强制提问，结尾是动作即可" if short else "；".join(problems),
+              [] if short else [f"当前结尾：{last[:40]}"])
     else:
         r.add("PASS", "结尾提问", f"「{last[:30]}…」")
 
@@ -253,7 +262,9 @@ def check(path: Path, obj=None, expect_title=None):
             found[name] = len(ms)
     total_g = sum(found.values())
     detail = [f"{k} ×{v}" for k, v in found.items()]
-    if "账本式" not in found:
+    if short and total_g >= 2:
+        r.add("PASS", "金句密度", f"共 {total_g} 句（速写不强制账本式）", detail)
+    elif "账本式" not in found:
         r.add("WARN", "金句密度", f"共 {total_g} 句，但缺「账本式」（最强的一句）", detail)
     elif total_g >= 4:
         r.add("PASS", "金句密度", f"共 {total_g} 句，含账本式", detail)
@@ -354,6 +365,8 @@ def main():
     ap.add_argument("--object", "-o", default=None, help="锚点物件，如 座椅 / 方向盘 / 钥匙")
     ap.add_argument("--title", "-t", default=None, help="标题（文件中没有标题行时使用）")
     ap.add_argument("--json", action="store_true", help="输出 JSON")
+    ap.add_argument("--short", action="store_true",
+                    help="速写模式（日更用）：篇幅 400–900，金句不强制，结尾问句与锚点闭环可选")
     a = ap.parse_args()
 
     p = Path(a.draft)
@@ -361,7 +374,7 @@ def main():
         print(f"找不到文件：{p}", file=sys.stderr)
         return 2
 
-    r, n, np_, bold = check(p, a.object, a.title)
+    r, n, np_, bold = check(p, a.object, a.title, short=a.short)
 
     if a.json:
         print(json.dumps({
