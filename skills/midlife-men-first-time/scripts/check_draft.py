@@ -34,6 +34,14 @@ LEAD_WORDS = ["点赞", "点个赞", "在看", "关注我", "转发", "收藏", 
 PSYCH_WORDS = ["感到", "觉得", "心里", "内心深处", "不禁", "忍不住"]
 # 警告：上价值结尾
 PREACH_END = ["你应该", "我们要", "愿你", "希望每个", "请记住", "这才是真正"]
+# 活人感：文章腔标记（命中即 WARN，报告用）
+ALIVE_META = ["像一台", "像一具", "似的", "仿佛", "宛如", "犹如", "如同"]
+ALIVE_GENERIC = ["我们", "大家", "人们", "所有人", "很多人", "一类人"]
+ALIVE_SUMMARY = ["这就是", "这才是", "说到底", "归根结底", "无非", "本质上",
+                 "说来", "一句话说", "其实都"]
+ALIVE_PATHOS = ["让人心酸", "令人心酸", "令人唏嘘", "不免", "何尝不是", "不忍",
+                "不由", "令人感动", "让人动容"]
+
 # 爽文判定
 COOL_WORDS = ["拿到了驾照", "拿到驾照", "买了车", "自驾", "成功", "终于",
               "圆满", "梦想成真", "逆袭", "从此", "自由自在"]
@@ -325,6 +333,26 @@ def check(path: Path, obj=None, expect_title=None, short=False):
         r.add("PASS", "标题", f"「{expect_title}」")
     else:
         r.add("WARN", "标题", "未检测到标题行")
+
+    # --- 15 活人感
+    hits = []
+    for label, words in [("比喻", ALIVE_META), ("泛化主语", ALIVE_GENERIC),
+                         ("总结句", ALIVE_SUMMARY), ("替读者感动", ALIVE_PATHOS)]:
+        f = [w for w in words if w in body]
+        if f:
+            hits.append(f"{label}：{'、'.join(f)}")
+    if hits:
+        r.add("WARN", "活人感", "；".join(hits),
+              ["比喻一律删；泛化主语换成具体的人；总结句是文章腔核心；"
+               "替读者感动 = 命令读者哭", "改法见 references/alive.md 第三节"])
+    else:
+        r.add("PASS", "活人感", "无文章腔标记")
+    # 多余的一笔 / 原话
+    if "“" in body or "\"" in body:
+        r.add("PASS", "原话", "正文含引号对话 ✓")
+    else:
+        r.add("WARN", "原话", "全篇没有一句原话",
+              ["活人感七成来自原话，见 references/alive.md 第二节"])
 
     return r, n, len(paras), bold
 
