@@ -1,151 +1,92 @@
-# 中年女人的第一次
+# 中年中年 · 两个写作技能包
 
-一个写作技能包。给 AI 装上之后，它能把你手上的一个真人素材，写成一篇**读者看完想说"我也是"**的中文公众号推文。
+同一套技法，两个不同的伤口。
 
-写给谁看：写 40+ 女性选题的号主。一个人写，没有编辑，没时间反复改。
+| | 写谁 | 张力从哪来 | 最怕写成 |
+|---|---|---|---|
+| [中年女人的第一次](skills/midlife-women-first-time/) | 40+ 女人做一件没人支持的小事 | **被拦住**：「你凭什么」 | 励志文 |
+| [中年男人的第一次](skills/midlife-men-first-time/) | 40+ 男人做一件没人当真、也没人反对的小事 | **被放过**：「挺好的」 | 自怜文 |
 
----
+> 女人到了四十岁，是被拦住的。男人到了四十岁，是被放过的。
+> 被拦住的人有话说，被放过的人说不出话——因为他找不到一个可以怪的人。
 
-## 它解决什么问题
-
-写给中年女性的号，最难的不是文笔，是两个坎：
-
-- **写成励志文。** 她终于做到了——读者点个赞就走，评论区一片安静。
-- **写成说教文。** 作者在讲故事，其实在教你做人——读者划走。
-
-这个技能的做法是三条硬规矩，每一条都配了能自动检查的工具：
-
-1. **白描，不判断。** 只写看见的。删掉所有"感到 / 觉得 / 心里"。
-2. **不给圆满结局。** 结尾留白，不许"终于""成功了""从此"。
-3. **结尾不加引导语。** 不求赞、不求在看、不上价值，只留一个问题给读者。
+两个包**互不依赖**，可以只装一个。`scripts/` 里三个脚本两边完全相同，逐字一致。
 
 ---
 
-## 什么时候用它
+## 装
 
-- 手上有一个真人的素材，要写成一篇推文
-- 稿子写完了，想知道能不能发（有 17 项自动检查）
-- 想不出选题，要从一批素材里挑
-- 连着发了三篇，怕读者看出套路
-- 标题定不下来，要几个候选
-
-**它写不了什么：** 资讯、教程、观点评论、带货文案。它只干一件事——**把一个人写活。**
-
----
-
-## 怎么装
-
-### 方式一：git clone（推荐，能跟着更新）
+两个一起装：
 
 ```bash
+git clone --depth 1 https://github.com/chenty/midlife-women-first-time.git /tmp/ms
 mkdir -p ~/.claude/skills
-git clone https://github.com/chenty/midlife-women-first-time.git \
-  ~/.claude/skills/midlife-women-first-time
+cp -r /tmp/ms/skills/* ~/.claude/skills/
 ```
 
-以后更新：
+只装一个：
 
 ```bash
-cd ~/.claude/skills/midlife-women-first-time && git pull
+cp -r /tmp/ms/skills/midlife-men-first-time ~/.claude/skills/     # 男版
+cp -r /tmp/ms/skills/midlife-women-first-time ~/.claude/skills/   # 女版
 ```
 
-### 方式二：下载 zip
+也可以直接在 Claude 里 Settings → Capabilities → Skills → Upload skill，传对应目录的 zip。
 
-在仓库页面点 **Code → Download ZIP**，解压后放进 `~/.claude/skills/`。
-
-只要保证两件事：目录名是 `midlife-women-first-time`；进去第一眼能看到 `SKILL.md`。
-
-### 方式三：上传给 Claude
-
-Claude → Settings → Capabilities → Skills → Upload skill。
-**直接把 zip 传上去，不要解压**——zip 里第一层就是 `midlife-women-first-time/`，符合规范。
-
-### 装完自检
+更新：
 
 ```bash
-cd ~/.claude/skills/midlife-women-first-time
-python3 scripts/check_draft.py assets/sample_pass.md --object 方向盘
+cd /tmp/ms && git pull && cp -r skills/* ~/.claude/skills/
 ```
-
-看到这行就装好了：
-
-```
-结果：❌ 0 失败 · ⚠️ 0 警告 · ✅ 17 通过
-```
-
-脚本只用 Python 标准库，不用装任何东西。要 `python3` 能跑。
 
 ---
 
-## 怎么用
+## 自检
 
-装好之后不用记命令，正常说话就行。技能会自己判断该不该接管：
+```bash
+python3 ~/.claude/skills/midlife-women-first-time/scripts/check_draft.py \
+  ~/.claude/skills/midlife-women-first-time/assets/sample_pass.md --object 方向盘
 
-> 写一篇，素材是：我妈 48 岁，报了老年大学的钢琴班，去了两次就不去了，说是手指头跟不上。
-
-> 这篇帮我改一下，我觉得太像鸡汤了。
-
-> 这几个素材帮我排个顺序，哪个先发。
-
-> 帮我看看这篇的标题，多给几个。
-
-> 我连着发了三篇，帮我查一下有没有重复。
-
-### 它会给你什么
-
-以"写一篇"为例，正常走完会拿到三样东西：
-
-1. **一篇成稿**（1000–1200 字）
-2. **标题候选**（3–5 个，带推荐理由）
-3. **发布前质检报告**（17 项，指出问题在第几段）
-
-如果稿子过不了质检，它会明确告诉你哪儿不合格、建议怎么改，不糊弄你。
-
-### 用之前最好准备这些
-
-素材越具体，稿子越好。尽量带上：
-
-- 她多大、做什么的（不用真名，年龄要真）
-- 一件她做了但没人支持的事
-- 一个能看见的细节：她说过的原话、身上的东西、去过的地方
-- 结尾最好是她还没成、或者成了但没意思
-
-**给不出这些，它也会写，但写出来会空。**
-
----
-
-## 里面有什么
-
-```
-SKILL.md                  总纲：三个硬约束 + 工作流（AI 读这个）
-references/               八份细则是按需查的
-  structure.md            七段骨架，每一段该干什么
-  structure-library.md    五种结构，防止每篇一个样
-  variation.md            发到第 N 篇怎么不重复
-  topics.md               什么样的素材能写成爆款
-  details.md              细节怎么抓、哪些细节是假的
-  language.md             金句句式、标题公式、结尾提问
-  operations.md           评论区怎么回、数据不好怎么查
-  examples.md             爆款的逐段拆解，写作时对照
-scripts/
-  check_draft.py          发布前质检，17 项
-  check_variation.py      查连着几篇有没有撞结构
-  new_article.py          拉一个空骨架出来填
-assets/
-  skeleton.md             填空版骨架
-  sample_pass.md          17 项全过的范本，用来对照语感
+python3 ~/.claude/skills/midlife-men-first-time/scripts/check_draft.py \
+  ~/.claude/skills/midlife-men-first-time/assets/sample_pass.md --object 吉他
 ```
 
-不用全读。AI 会根据你在做什么自己去查。
+两个都应该输出 `❌ 0 失败 · ⚠️ 0 警告 · ✅ 17 通过`。
+
+> `--object` 是这篇的**锚点物件**（贯穿首尾、结尾含义发生变化的那件东西）。
+> 它不一定等于标题词：女版范本的标题里是"驾照"，锚点是**方向盘**。
 
 ---
 
-## 一点提醒
+## 目录
 
-- **它是工具，不是模板。** 别照着范本改词，那样写出来就是第二个套路。
-- **四问得你自己答。** 稿子写得好不好，脚本查不出"发现"——这件事只有你能判断。答不上来就别发。
-- **质检报告不是圣旨。** 它偶尔会误报（比如正文里叙述别人的"点赞"数）。这时候改文案，别改工具。
+```
+skills/
+  midlife-women-first-time/     女版（自包含）
+  midlife-men-first-time/       男版（自包含）
+tools/
+  sync_scripts.py               校验/同步两版共用的三个脚本
+```
+
+`--check` 会在不一致时报错：
+
+```bash
+# 在仓库根目录
+python3 skills/../tools/sync_scripts.py --check
+```
+
+改脚本时只改一处，然后跑一次同步，两边都更新——**避免"修了一个 bug，另一边的质检还悄悄失效"。**
 
 ---
 
-仓库：<https://github.com/chenty/midlife-women-first-time>
+## 共同的那部分
+
+两个包共享同样的形：
+
+- **白描，不判断。** 只写看见的，不写判断的；删掉所有"感到 / 觉得 / 心里"。
+- **不给圆满结局。** 未完成 / 完成但有代价 / 放弃了，三种合法形态，但不许"终于"。
+- **零引导语。** 结尾不求赞、不上价值，只留一个问题。
+- **一个锚点物件。** 开头出现、结尾回来，含义必须变。
+- **17 项机械质检。** 过不了就不许发。
+
+不同的那部分，每个包的 `SKILL.md` 开头就写清楚了。
