@@ -132,6 +132,7 @@ references/
   structure.md            七段骨架（④段是"无声段"，不是"摩擦段"）
   structure-library.md    五种结构，防止每篇一个样
   variation.md            发到第 N 篇怎么不重复
+  hotspot.md              ★ 素材不够时，热点怎么用（不能直接写）
   topics.md               ★ 唯一判据：说出去以后，有人当真吗
   details.md              素材清单、锚点物件、细节红线
   language.md             金句句式、标题公式、结尾提问

@@ -169,6 +169,7 @@ python3 scripts/check_draft.py draft.md --object 座椅 --json
 
 | 用户问"会不会篇篇一样 / 是不是套路了" | 读 `references/variation.md` |
 | 用户要换结构 / 参考别家的结构理论 | 读 `references/structure-library.md`（**只从 5 个里选，不要自造第 6 个**）|
+| 素材不够 / 想拿热点写 | 读 `references/hotspot.md`（**热点不能直接写，先过三级分类**）|
 | 用户要什么 | 读哪个 |
 |---|---|
 | 选题 | `references/topics.md` |
@@ -221,6 +222,7 @@ references/
   operations.md           评论区 SOP、四项指标诊断表、节奏建议
   examples.md             原爆款逐段拆解（写作时对照）
   variation.md            ⭐反同质化手册：入口轮换/结局三形态/零金句篇
+  hotspot.md              ⭐热点转化手册：素材不够时怎么用热点（不能直接写）
   structure-library.md    ⭐结构库（5 个构型 + 轮换登记表 + 12 篇节奏）
 scripts/
   check_draft.py          发布前机械质检（禁用词/数字细节/物件闭环/结局/提问）
