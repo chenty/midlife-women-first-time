@@ -348,7 +348,7 @@ def check(path: Path, obj=None, expect_title=None, short=False):
     else:
         r.add("PASS", "活人感", "无文章腔标记")
     # 多余的一笔 / 原话
-    if "“" in body or "\"" in body:
+    if any(q in body for q in ("“", "\"", "「")):
         r.add("PASS", "原话", "正文含引号对话 ✓")
     else:
         r.add("WARN", "原话", "全篇没有一句原话",
